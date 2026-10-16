@@ -1,0 +1,26 @@
+{
+  "name": "plot-prep-test",
+  "summary": "Test processor-plot-prep on its own: MEF2 folder in, NWB out; anything else passes through",
+  "description": "Standalone test workflow for processor-plot-prep, run by hand with POST /runs (no pennsieve-mcp involved). The data-target uploads whatever the stage wrote to OUTPUT_DIR back into a dataset as a package, so the result can be downloaded and opened. Replace organizationId with yours before POSTing to /definitions.",
+  "organizationId": "N:organization:050fae39-4412-43ef-a514-703ed8e299d5",
+  "processors": [
+    {
+      "id": "target-file",
+      "type": "data-source"
+    },
+    {
+      "id": "plot-prep",
+      "type": "processor",
+      "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep",
+      "tag": "v0.1.0",
+      "computeType": "standard",
+      "dependsOn": ["target-file"]
+    },
+    {
+      "id": "prep-output",
+      "type": "data-target",
+      "targetType": "Pennsieve Dataset",
+      "dependsOn": ["plot-prep"]
+    }
+  ]
+}
