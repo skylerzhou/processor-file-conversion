@@ -1,0 +1,13 @@
+{
+  "converters": [
+    {
+      "name": "mef2_to_nwb",
+      "input_extensions": [
+        ".mef"
+      ],
+      "output_extension": ".nwb",
+      "execution_target": "standard"
+    }
+  ],
+  "pass_through_execution_target": "lambda"
+}

@@ -1,0 +1,17 @@
+services:
+  processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Override to pin a tag/SHA: MEF2STREAMER_REF=<sha> docker-compose build
+        MEF2STREAMER_REF: ${MEF2STREAMER_REF:-main}
+    env_file:
+      - dev.env
+    environment:
+      # Convert only these channels, comma-separated. Unset converts everything.
+      #   CHANNELS="EEG AD 01-Ref,EEG PT 01-Ref" make run
+      CHANNELS: "${CHANNELS:-}"
+    volumes:
+      - ./data/input:/data/input:ro
+      - ./data/output:/data/output

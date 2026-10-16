@@ -1,0 +1,6 @@
+numpy
+pynwb
+hdmf
+tqdm
+# Lambda Runtime Interface Client (for the dual-mode container)
+awslambdaric
