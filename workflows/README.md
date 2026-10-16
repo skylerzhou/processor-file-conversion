@@ -21,8 +21,8 @@ export TOKEN="<session-token>"
 export BASE="https://api2.pennsieve.net/compute/workflows"   # dev
 
 # 0. Once: register the application (app-deploy-service) and tag a release.
-#    computeTypes ["standard"] for the first test; add "lambda" when the
-#    per-run Lambda/Fargate switch is wired up.
+#    app.yml declares computeTypes [standard, lambda]; the first test runs
+#    on standard (the workflow node's default).
 
 # 1. Register the test workflow
 curl -X POST "$BASE/definitions" -H "Authorization: Bearer $TOKEN" \
@@ -36,7 +36,7 @@ curl -X POST "$BASE/runs" -H "Authorization: Bearer $TOKEN" \
     "workflowId": "<workflow-uuid>",
     "computeNodeId": "<compute-node-uuid>",
     "processorConfigs": [
-      {"nodeId": "processor-plot-prep", "version": "v0.1.0", "executionTarget": "standard"}
+      {"nodeId": "processor-plot-prep", "version": "v0.0.1", "executionTarget": "standard"}
     ]
   },
   "datasetId": "<dataset with write permission>",
@@ -70,7 +70,7 @@ in the run body as above.
 ## Testing the stage in front of quick-plot (CSV, no quick-plot change)
 
 Prerequisites: `skylerzhou/pennsieve-quick-plot-test` synced to upstream main and
-tagged (the JSON says `v0.0.4`; change it if you tag differently), registered
+tagged (`v0.0.5` at the time of writing; change the JSON if you tag again), registered
 as an application with `computeTypes: ["lambda"]`; the dev compute node has the
 `quick-plot-stack` EFS layer populated (it does if `plot-templates` runs there).
 
@@ -84,8 +84,8 @@ curl -X POST "$BASE/runs" -H "Authorization: Bearer $TOKEN" \
     "workflowId": "<workflow-uuid>",
     "computeNodeId": "<compute-node-uuid>",
     "processorConfigs": [
-      {"nodeId": "processor-plot-prep",  "version": "v0.1.0", "executionTarget": "standard"},
-      {"nodeId": "quick-plot-processor", "version": "v0.0.4", "executionTarget": "lambda"}
+      {"nodeId": "processor-plot-prep",  "version": "v0.0.1", "executionTarget": "standard"},
+      {"nodeId": "quick-plot-processor", "version": "v0.0.5", "executionTarget": "lambda"}
     ]
   },
   "datasetId": "<dataset with write permission>",

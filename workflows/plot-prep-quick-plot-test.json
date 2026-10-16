@@ -12,7 +12,7 @@
       "id": "processor-plot-prep",
       "type": "processor",
       "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep",
-      "tag": "v0.1.0",
+      "tag": "v0.0.1",
       "computeType": "standard",
       "dependsOn": ["target-file"]
     },
@@ -20,7 +20,7 @@
       "id": "quick-plot-processor",
       "type": "processor",
       "sourceUrl": "https://github.com/skylerzhou/pennsieve-quick-plot-test",
-      "tag": "v0.0.4",
+      "tag": "v0.0.5",
       "computeType": "lambda",
       "dependsOn": ["processor-plot-prep"]
     },

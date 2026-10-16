@@ -69,6 +69,7 @@ processor/
     mef2/             mef_streamer.py, multi_channel_reader.py, nwb_writer.py
 schema/converters.json   generated; pennsieve-mcp vendors a copy
 tests/                   fake_streamer.py stands in for the jar; no Java needed
+app.yml                  manifest app-deploy-service reads: runtime, parameters, input/output media types
 entrypoint.sh            Lambda vs ECS detection (same as quick-plot)
 Dockerfile               JRE + mef2streamer build + python 3.12 + pynwb
 ```
@@ -121,7 +122,7 @@ The node sits between the data-source and quick-plot. Its id is the repo name,
 
 ```json
 { "id": "processor-plot-prep", "type": "processor",
-  "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep", "tag": "v0.1.0",
+  "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep", "tag": "v0.0.1",
   "computeType": "lambda", "dependsOn": ["target-file"] },
 { "id": "quick-plot-processor", "type": "processor", "...": "...", "dependsOn": ["processor-plot-prep"] }
 ```

@@ -1,0 +1,39 @@
+schemaVersion: '1.0'
+application:
+  name: processor-plot-prep
+  description: Prepare a staged file for pennsieve-quick-plot. A MEF 2.0 recording is converted to one NWB file; any other format is copied through unchanged
+  type: processor
+runtime:
+  # Fargate side. Decoding streams, so memory stays flat; the JVM plus pynwb
+  # want a few GB of headroom. Raise if a real-size recording says so.
+  cpu: 2048
+  memory: 8192
+  # standard (Fargate) for conversions, lambda for pass-through. The workflow
+  # node's computeType is the default; a run may override it with
+  # processorConfigs[].executionTarget, which must be one of these.
+  computeTypes:
+    - standard
+    - lambda
+parameters:
+  - name: CHANNELS
+    type: string
+    required: false
+    description: Comma-separated channel names to convert (the one or two the plot needs). Empty converts every channel. A name that matches no file fails the run. Ignored on pass-through
+    defaultValue: ''
+  - name: OUTPUT_FILENAME
+    type: string
+    required: false
+    description: Bare filename (no path) for the converted file. Empty names it after the recording folder, <folder>.nwb. Ignored on pass-through
+    defaultValue: ''
+# INPUT_DIR and OUTPUT_DIR come from the runner. Nothing here needs credentials.
+inputs:
+  - name: Data File
+    dataType: application/octet-stream
+    required: true
+    description: Whatever the data-source staged into INPUT_DIR. Either a MEF 2.0 recording (a folder of .mef files, one per channel, flat or one level down) or a file quick-plot reads directly (EDF, CSV, TSV, FCS, ...)
+outputs:
+  - name: Plot Input
+    # Keep this type aligned with the pennsieve-quick-plot input and with the
+    # processor-post-timeseries input, which also takes one .nwb file.
+    dataType: application/octet-stream
+    description: Exactly one data file for the next stage. <recording>.nwb when the input was MEF 2.0, otherwise the input copied unchanged
