@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Override to pin a tag/SHA: MEF2STREAMER_REF=<sha> docker-compose build
+        # Which mef2streamer to build the jar from (defaults match the Dockerfile):
+        #   MEF2STREAMER_REPO=Pennsieve/mef2streamer MEF2STREAMER_REF=<sha> docker-compose build
+        MEF2STREAMER_REPO: ${MEF2STREAMER_REPO:-skylerzhou/mef2streamer-fork}
         MEF2STREAMER_REF: ${MEF2STREAMER_REF:-main}
     env_file:
       - dev.env

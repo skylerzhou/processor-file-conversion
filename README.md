@@ -110,20 +110,23 @@ converter will run (a big MEF2 recording needs more than Lambda's 15 minutes).
 
 | Argument | Default | Description |
 |---|---|---|
-| `MEF2STREAMER_REF` | `main` | Branch, tag or SHA of `Pennsieve/mef2streamer` to build the jar from. Pin it before a release: `MEF2STREAMER_REF=<sha> docker-compose build`. |
+| `MEF2STREAMER_REPO` | `skylerzhou/mef2streamer-fork` | GitHub `<owner>/<name>` to build the jar from. The default is the fork while this processor is under test (app-deploy-service passes no build args, so the default is what the platform builds). Switch it to `Pennsieve/mef2streamer` when integrating. |
+| `MEF2STREAMER_REF` | `main` | Branch, tag or SHA in that repo. Pin it before a release: `MEF2STREAMER_REF=<sha> docker-compose build`. |
 
 ## Workflow definition
 
-The node sits between the data-source and quick-plot:
+The node sits between the data-source and quick-plot. Its id is the repo name,
+`processor-plot-prep`, so the workflow JSON, the `processorConfigs` /
+`processorParams` keys and the logs all say the same thing:
 
 ```json
-{ "id": "plot-prep", "type": "processor",
+{ "id": "processor-plot-prep", "type": "processor",
   "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep", "tag": "v0.1.0",
   "computeType": "lambda", "dependsOn": ["target-file"] },
-{ "id": "quick-plot-processor", "type": "processor", "...": "...", "dependsOn": ["plot-prep"] }
+{ "id": "quick-plot-processor", "type": "processor", "...": "...", "dependsOn": ["processor-plot-prep"] }
 ```
 
 workflow-service only fills defaults for the `processorConfigs` entries a run
 sends, so `plot_file` in pennsieve-mcp must add
-`{ "nodeId": "plot-prep", "version": "...", "executionTarget": "lambda" | "standard" }`
+`{ "nodeId": "processor-plot-prep", "version": "...", "executionTarget": "lambda" | "standard" }`
 to every run.

@@ -9,7 +9,7 @@
       "type": "data-source"
     },
     {
-      "id": "plot-prep",
+      "id": "processor-plot-prep",
       "type": "processor",
       "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep",
       "tag": "v0.1.0",
@@ -20,7 +20,7 @@
       "id": "prep-output",
       "type": "data-target",
       "targetType": "Pennsieve Dataset",
-      "dependsOn": ["plot-prep"]
+      "dependsOn": ["processor-plot-prep"]
     }
   ]
 }
