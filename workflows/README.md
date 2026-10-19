@@ -54,7 +54,7 @@ curl -H "Authorization: Bearer $TOKEN" "$BASE/runs/<run-uuid>/logs"
 
 What to check after each run:
 
-- MEF2 run: exactly one `<folder>.nwb` package appears in the dataset; open it
+- MEF2 run: exactly one `.nwb` package (named after the channels, e.g. `LA01_LA02.nwb`) appears in the dataset; open it
   (pynwb or h5py) and confirm the channel names and sample count. Note the run
   duration from `GET /runs/{id}` — that is the number the Lambda/Fargate decision
   needs.
@@ -117,9 +117,8 @@ Two ways to point a run at it, and the gate handles both:
   flat into `INPUT_DIR`, `detect()` finds them there; one level down also works.
   `CHANNELS` picks the one or two the plot needs.
 - **The channel files' package ids** (one or two `packageIds`). Then
-  `INPUT_DIR` holds exactly those files and `CHANNELS` is unnecessary. The
-  output is then named after the staging folder, so pass
-  `processorParams.processor-plot-prep.OUTPUT_FILENAME` to name it after the recording.
+  `INPUT_DIR` holds exactly those files and `CHANNELS` is unnecessary. Either
+  way the NWB is named after the channels converted (`LA01_LA02.nwb`).
 
 Which of the two the provisioner supports for a collection id is still to be
 checked (compute-node-aws-provisioner-v2).

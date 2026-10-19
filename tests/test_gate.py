@@ -67,18 +67,18 @@ def _mef_folder(folder: Path) -> None:
         (folder / f"{name}.mef").write_bytes(b"\x00" * 2048)   # >= the 1024-byte MEF2 header
 
 
-def test_mef_folder_becomes_exactly_one_nwb_named_after_it(tmp_path):
+def test_mef_folder_becomes_exactly_one_nwb_named_after_the_channels(tmp_path):
     cfg = _config(tmp_path)
     _mef_folder(Path(cfg.input_dir) / "sub01")
 
     written = run(cfg)
 
     out = Path(cfg.output_dir)
-    assert _entries(out) == ["sub01.nwb"], "nothing but the NWB may be left for the next stage"
-    assert [p.name for p in written] == ["sub01.nwb"]
+    assert _entries(out) == ["A1_B2.nwb"], "nothing but the NWB may be left for the next stage"
+    assert [p.name for p in written] == ["A1_B2.nwb"]
 
     from pynwb import NWBHDF5IO
-    with NWBHDF5IO(str(out / "sub01.nwb"), "r") as io:
+    with NWBHDF5IO(str(out / "A1_B2.nwb"), "r") as io:
         nwb = io.read()
         series = nwb.acquisition["ElectricalSeries"]
         assert series.data.shape == (50, 2)
@@ -91,7 +91,7 @@ def test_mef_files_directly_in_input_dir_also_convert(tmp_path):
 
     run(cfg)
 
-    assert _entries(Path(cfg.output_dir)) == ["input.nwb"]
+    assert _entries(Path(cfg.output_dir)) == ["A1_B2.nwb"]
 
 
 def test_output_filename_override(tmp_path):
@@ -115,6 +115,18 @@ def test_channels_are_handed_to_the_jar(tmp_path, monkeypatch):
     seen = json.loads(note.read_text())
     assert seen["MEF_CHANNELS"] == "A1,EEG PT 01-Ref"
     assert seen["input_dir"].endswith("sub01")
+    assert _entries(Path(cfg.output_dir)) == ["A1_EEG_PT_01-Ref.nwb"], "named after the channels asked for"
+
+
+def test_many_channels_fall_back_to_the_folder_name(tmp_path):
+    from processor.converters.mef2_to_nwb import output_name
+    folder = tmp_path / "sub01"
+    folder.mkdir()
+    for name in ("A1", "B2", "C3", "D4"):
+        (folder / f"{name}.mef").write_bytes(b"\x00" * 2048)
+    assert output_name(folder, []) == "sub01.nwb"
+    assert output_name(folder, ["A1"]) == "A1.nwb"
+    assert output_name(folder, ["A1", "B2"]) == "A1_B2.nwb"
 
 
 ############# FAILURES ##################

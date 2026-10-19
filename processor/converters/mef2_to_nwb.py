@@ -23,9 +23,11 @@ import shlex
 import shutil
 from pathlib import Path
 
-# The mef2 modules (pynwb, hdmf, numpy) are imported inside convert(), not
-# here: this module is imported on every run, including pass-through runs on
-# Lambda, and pynwb alone costs ~15 s of cold start. detect() needs none of it.
+# The mef2 modules that pull in pynwb, hdmf and numpy are imported inside
+# convert(), not here: this module is imported on every run, including
+# pass-through runs on Lambda, and pynwb alone costs ~15 s of cold start.
+# mef_streamer is stdlib-only, so its filename helper is safe to import.
+from processor.converters.mef2.mef_streamer import _sanitize_filename
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +37,9 @@ OUTPUT_EXTENSION = ".nwb"
 # A MEF 2.x file opens with a 1024-byte header; the jar reads it with
 # readFully() and dies with a bare EOFException on anything shorter.
 MEF2_HEADER_BYTES = 1024
+# Name the NWB after the channels when a plot's worth of them was converted
+# (LA01.nwb, LA01_LA02.nwb); past this many, fall back to the folder name.
+MAX_CHANNELS_IN_NAME = 3
 
 
 def _has_mef_files(folder: Path) -> bool:
@@ -63,13 +68,31 @@ def detect(input_dir: Path) -> Path | None:
     return None
 
 
+def _mef_files(source: Path) -> list[Path]:
+    return sorted(p for p in source.iterdir() if p.is_file() and p.suffix.lower() in INPUT_EXTENSIONS)
+
+
+def output_name(source: Path, channels: list[str]) -> str:
+    """LA01.nwb for one channel, LA01_LA02.nwb for a montage, <folder>.nwb
+    when more than MAX_CHANNELS_IN_NAME channels are converted.
+
+    The channels are the ones asked for (CHANNELS), or every .mef in the
+    folder when none were. The platform stages files into a folder named
+    node_<id>, so the folder name is the fallback, not the default.
+    """
+    names = list(channels) if channels else [p.stem for p in _mef_files(source)]
+    if 1 <= len(names) <= MAX_CHANNELS_IN_NAME:
+        return "_".join(_sanitize_filename(n) for n in names) + OUTPUT_EXTENSION
+    return f"{source.name}{OUTPUT_EXTENSION}"
+
+
 def _check_mef_files(source: Path) -> None:
     """Fail with a reason naming the file when a .mef can't be MEF2.
 
     An empty or truncated file (a staging problem, or a placeholder upload)
     would otherwise surface as a Java EOFException ten lines deep in the log.
     """
-    files = sorted(p for p in source.iterdir() if p.is_file() and p.suffix.lower() in INPUT_EXTENSIONS)
+    files = _mef_files(source)
     for p in files:
         size = p.stat().st_size
         log.info("  %s  %d bytes", p.name, size)
@@ -97,8 +120,7 @@ def convert(source: Path, output_dir: Path, config) -> Path:
     output_dir = Path(output_dir)
     _check_mef_files(source)
     staging_dir = output_dir / ".staging"
-    output_name = config.output_filename or f"{source.name}{OUTPUT_EXTENSION}"
-    output_path = output_dir / output_name
+    output_path = output_dir / (config.output_filename or output_name(source, config.channels))
 
     java_cmd = shlex.split(config.java_cmd) + [str(source)]
     if config.channels:

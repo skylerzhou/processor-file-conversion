@@ -24,7 +24,7 @@ parameters:
     defaultValue: all
 # INPUT_DIR and OUTPUT_DIR come from the runner. OUTPUT_FILENAME is accepted as
 # an env var but not declared here: the converted file is named after the
-# recording folder and nobody needs to set it. Nothing here needs credentials.
+# channels converted (LA01_LA02.nwb) and nobody needs to set it. Nothing here needs credentials.
 inputs:
   - name: Data File
     dataType: application/octet-stream
