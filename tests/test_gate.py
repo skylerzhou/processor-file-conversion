@@ -64,7 +64,7 @@ def test_pass_through_keeps_subfolders(tmp_path):
 def _mef_folder(folder: Path) -> None:
     folder.mkdir(parents=True, exist_ok=True)
     for name in ("A1", "B2"):
-        (folder / f"{name}.mef").write_bytes(b"\x00" * 64)
+        (folder / f"{name}.mef").write_bytes(b"\x00" * 2048)   # >= the 1024-byte MEF2 header
 
 
 def test_mef_folder_becomes_exactly_one_nwb_named_after_it(tmp_path):
@@ -180,4 +180,19 @@ def test_main_returns_1_when_the_jar_fails(tmp_path, monkeypatch):
     _env_for(monkeypatch, cfg)
 
     assert main() == 1
+    assert _entries(Path(cfg.output_dir)) == []
+
+
+############# TRUNCATED MEF ##################
+
+def test_truncated_mef_fails_with_a_reason_naming_the_file(tmp_path):
+    """An empty or short .mef must not reach the jar (it dies with a bare EOFException)."""
+    cfg = _config(tmp_path)
+    folder = Path(cfg.input_dir) / "sub01"
+    folder.mkdir()
+    (folder / "LA01.mef").write_bytes(b"\x00" * 12)
+
+    with pytest.raises(RuntimeError, match=r"LA01\.mef is 12 bytes"):
+        run(cfg)
+
     assert _entries(Path(cfg.output_dir)) == []

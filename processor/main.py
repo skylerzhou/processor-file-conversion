@@ -41,6 +41,20 @@ class PrepError(RuntimeError):
     """A failure with a message meant for the person who asked for the plot."""
 
 
+def _log_listing(folder: Path, limit: int = 50) -> None:
+    """What the data-source staged, with sizes: the first thing to look at
+    when a run fails, and the one thing the platform doesn't show."""
+    entries = sorted(folder.iterdir())
+    for entry in entries[:limit]:
+        if entry.is_dir():
+            n = sum(1 for _ in entry.iterdir())
+            log.info("  %s/  (%d entries)", entry.name, n)
+        else:
+            log.info("  %s  %d bytes", entry.name, entry.stat().st_size)
+    if len(entries) > limit:
+        log.info("  ... %d more", len(entries) - limit)
+
+
 def pass_through(input_dir: Path, output_dir: Path) -> list[Path]:
     """Copy everything in input_dir to output_dir, unchanged. Returns the copies."""
     copied: list[Path] = []
@@ -63,6 +77,7 @@ def run(config: Config) -> list[Path]:
         raise PrepError(f"INPUT_DIR does not exist: {input_dir}")
     if not any(input_dir.iterdir()):
         raise PrepError("No input file was staged for this run.")
+    _log_listing(input_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     converter, source = find_converter(input_dir)

@@ -23,15 +23,18 @@ import shlex
 import shutil
 from pathlib import Path
 
-from processor.converters.mef2.mef_streamer import stage_from_stream
-from processor.converters.mef2.multi_channel_reader import MultiChannelReader
-from processor.converters.mef2.nwb_writer import NWBWriter
+# The mef2 modules (pynwb, hdmf, numpy) are imported inside convert(), not
+# here: this module is imported on every run, including pass-through runs on
+# Lambda, and pynwb alone costs ~15 s of cold start. detect() needs none of it.
 
 log = logging.getLogger(__name__)
 
 NAME = "mef2_to_nwb"
 INPUT_EXTENSIONS = (".mef",)
 OUTPUT_EXTENSION = ".nwb"
+# A MEF 2.x file opens with a 1024-byte header; the jar reads it with
+# readFully() and dies with a bare EOFException on anything shorter.
+MEF2_HEADER_BYTES = 1024
 
 
 def _has_mef_files(folder: Path) -> bool:
@@ -60,6 +63,25 @@ def detect(input_dir: Path) -> Path | None:
     return None
 
 
+def _check_mef_files(source: Path) -> None:
+    """Fail with a reason naming the file when a .mef can't be MEF2.
+
+    An empty or truncated file (a staging problem, or a placeholder upload)
+    would otherwise surface as a Java EOFException ten lines deep in the log.
+    """
+    files = sorted(p for p in source.iterdir() if p.is_file() and p.suffix.lower() in INPUT_EXTENSIONS)
+    for p in files:
+        size = p.stat().st_size
+        log.info("  %s  %d bytes", p.name, size)
+        if size < MEF2_HEADER_BYTES:
+            raise RuntimeError(
+                f"{p.name} is {size} bytes, shorter than the {MEF2_HEADER_BYTES}-byte MEF2 "
+                f"header: the staged file is empty or truncated, so there is nothing to convert. "
+                f"Check the file's size in Pennsieve and whether the data-source staged it completely."
+            )
+    log.info("%d .mef file(s) in %s", len(files), source)
+
+
 def convert(source: Path, output_dir: Path, config) -> Path:
     """Convert the .mef files in `source` to one NWB file in `output_dir`.
 
@@ -67,8 +89,13 @@ def convert(source: Path, output_dir: Path, config) -> Path:
     removed whether it succeeds or fails: output_dir is the next stage's
     INPUT_DIR, and anything left there would be read as data.
     """
+    from processor.converters.mef2.mef_streamer import stage_from_stream
+    from processor.converters.mef2.multi_channel_reader import MultiChannelReader
+    from processor.converters.mef2.nwb_writer import NWBWriter
+
     source = Path(source)
     output_dir = Path(output_dir)
+    _check_mef_files(source)
     staging_dir = output_dir / ".staging"
     output_name = config.output_filename or f"{source.name}{OUTPUT_EXTENSION}"
     output_path = output_dir / output_name
