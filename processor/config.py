@@ -8,7 +8,13 @@ from dataclasses import dataclass, field
 
 
 def _split_channels(raw: str) -> list[str]:
-    """'A1, B2' -> ['A1', 'B2']; '' -> []. Spaces inside a name are kept."""
+    """'A1, B2' -> ['A1', 'B2']; '' or 'all' -> []. Spaces inside a name are kept.
+
+    "all" is the app.yml default (an empty default would make the param look
+    required in the run form) and means the same as unset: no channel filter.
+    """
+    if raw.strip().lower() == "all":
+        return []
     return [c.strip() for c in raw.split(",") if c.strip()]
 
 

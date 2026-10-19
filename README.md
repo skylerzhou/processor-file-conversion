@@ -91,8 +91,8 @@ Put a MEF2 session folder (or any file) under `data/input/`; the result lands in
 |---|---|---|
 | `INPUT_DIR` | `/data/input` | What the data-source staged |
 | `OUTPUT_DIR` | `/data/output` | What the next stage will read |
-| `CHANNELS` | all | Comma-separated channel names to convert (`MEF_CHANNELS` also accepted). The plot needs one or two channels; converting only those makes a 100-channel recording ~50× faster. A name that matches nothing fails the run. |
-| `OUTPUT_FILENAME` | `<source folder>.nwb` | Force the converted file's name |
+| `CHANNELS` | `all` | Comma-separated channel names to convert, or `all` (`MEF_CHANNELS` also accepted). The plot needs one or two channels; converting only those makes a 100-channel recording ~50× faster. A name that matches nothing fails the run. |
+| `OUTPUT_FILENAME` | `<source folder>.nwb` | Force the converted file's name. Env var only, not in `app.yml`: nobody needs to set it per run |
 | `JAVA_CMD` | `/opt/java/openjdk/bin/java -jar /processor/mefstreamer.jar` | Command prefix for the streamer; the source folder is appended |
 
 On Lambda the same values arrive in the event payload (`inputDir`, `outputDir`,

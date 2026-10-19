@@ -60,3 +60,12 @@ def test_checked_in_schema_is_current():
     checked_in = Path(__file__).resolve().parents[1] / "schema" / "converters.json"
     import json
     assert json.loads(checked_in.read_text()) == build(), "run `make schemas`"
+
+
+def test_channels_all_means_no_filter(monkeypatch):
+    from processor.config import Config
+    for raw in ("all", "ALL", " all ", ""):
+        monkeypatch.setenv("CHANNELS", raw)
+        assert Config.from_env().channels == [], raw
+    monkeypatch.setenv("CHANNELS", "A1, EEG PT 01-Ref")
+    assert Config.from_env().channels == ["A1", "EEG PT 01-Ref"]

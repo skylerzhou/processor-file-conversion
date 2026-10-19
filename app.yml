@@ -15,17 +15,16 @@ runtime:
     - standard
     - lambda
 parameters:
+  # Defaults are non-empty on purpose: a param with an empty default shows up
+  # as required in the run form. "all" means no channel filter.
   - name: CHANNELS
     type: string
     required: false
-    description: Comma-separated channel names to convert (the one or two the plot needs). Empty converts every channel. A name that matches no file fails the run. Ignored on pass-through
-    defaultValue: ''
-  - name: OUTPUT_FILENAME
-    type: string
-    required: false
-    description: Bare filename (no path) for the converted file. Empty names it after the recording folder, <folder>.nwb. Ignored on pass-through
-    defaultValue: ''
-# INPUT_DIR and OUTPUT_DIR come from the runner. Nothing here needs credentials.
+    description: Comma-separated channel names to convert (the one or two the plot needs), or "all" for every channel. A name that matches no file fails the run. Ignored on pass-through
+    defaultValue: all
+# INPUT_DIR and OUTPUT_DIR come from the runner. OUTPUT_FILENAME is accepted as
+# an env var but not declared here: the converted file is named after the
+# recording folder and nobody needs to set it. Nothing here needs credentials.
 inputs:
   - name: Data File
     dataType: application/octet-stream
