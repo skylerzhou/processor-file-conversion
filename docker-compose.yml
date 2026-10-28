@@ -4,10 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Which mef2streamer to build the jar from (defaults match the Dockerfile):
-        #   MEF2STREAMER_REPO=Pennsieve/mef2streamer MEF2STREAMER_REF=<sha> docker-compose build
-        MEF2STREAMER_REPO: ${MEF2STREAMER_REPO:-skylerzhou/mef2streamer-fork}
-        MEF2STREAMER_REF: ${MEF2STREAMER_REF:-main}
+        # Which commit of Pennsieve/mef2streamer to build the jar from (default
+        # matches the Dockerfile): MEF2STREAMER_REF=<sha> docker-compose build
+        MEF2STREAMER_REF: ${MEF2STREAMER_REF:-0e7304775811e5e8b44cc0e71479563f7b272cc0}
     env_file:
       - dev.env
     environment:

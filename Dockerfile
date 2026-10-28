@@ -6,25 +6,20 @@ FROM maven:3.9.4-eclipse-temurin-17 AS builder
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 
-# Which mef2streamer to build the jar from. REPO is "<owner>/<name>" on
-# GitHub; REF is a branch, tag or commit SHA.
-#
-# While this processor is being tested the default is Skyler's fork, so a
-# platform build (app-deploy-service passes no build args) picks up streamer
-# changes without waiting for them to land upstream. Before the processor is
-# integrated into Pennsieve proper, switch the default back to
-# Pennsieve/mef2streamer and pin REF to a tag or SHA.
-ARG MEF2STREAMER_REPO=skylerzhou/mef2streamer-fork
-ARG MEF2STREAMER_REF=main
+# The commit of Pennsieve/mef2streamer the jar is built from. Pinned, so a
+# change upstream cannot alter this image unnoticed; move the pin on purpose
+# to pick up a newer streamer. (app-deploy-service passes no build args, so
+# this default is what the platform builds.)
+ARG MEF2STREAMER_REF=0e7304775811e5e8b44cc0e71479563f7b272cc0
 
 # Bust the cache when the ref moves: ADD re-fetches this URL on every build and
 # invalidates the layer only when the commit it names actually changes.
-ADD https://api.github.com/repos/${MEF2STREAMER_REPO}/commits/${MEF2STREAMER_REF} /build/mef2streamer-ref.json
+ADD https://api.github.com/repos/Pennsieve/mef2streamer/commits/${MEF2STREAMER_REF} /build/mef2streamer-ref.json
 
 # Resolve the ref to a commit before checkout so a SHA, a tag, the default
 # branch and a remote-only branch all work (see processor-mef-timeseries for
 # the why).
-RUN git clone https://github.com/${MEF2STREAMER_REPO} src \
+RUN git clone https://github.com/Pennsieve/mef2streamer src \
 	&& git -C src checkout --detach "$(git -C src rev-parse --verify --quiet "${MEF2STREAMER_REF}^{commit}" \
 		|| git -C src rev-parse --verify "origin/${MEF2STREAMER_REF}^{commit}")" \
 	&& git -C src log -1 --format='mef2streamer build ref: %H %s' \

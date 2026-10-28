@@ -70,7 +70,7 @@ in the run body as above.
 ## Testing the stage in front of quick-plot (CSV, no quick-plot change)
 
 Prerequisites: `skylerzhou/pennsieve-quick-plot-test` synced to upstream main and
-tagged (`v0.0.5` at the time of writing; change the JSON if you tag again), registered
+tagged (`v0.0.6`, the build with the NWB reader; change the JSON if you tag again), registered
 as an application with `computeTypes: ["lambda"]`; the dev compute node has the
 `quick-plot-stack` EFS layer populated (it does if `plot-templates` runs there).
 
@@ -85,7 +85,7 @@ curl -X POST "$BASE/runs" -H "Authorization: Bearer $TOKEN" \
     "computeNodeId": "<compute-node-uuid>",
     "processorConfigs": [
       {"nodeId": "processor-plot-prep",  "version": "v0.0.1", "executionTarget": "standard"},
-      {"nodeId": "quick-plot-processor", "version": "v0.0.5", "executionTarget": "lambda"}
+      {"nodeId": "quick-plot-processor", "version": "v0.0.6", "executionTarget": "lambda"}
     ]
   },
   "datasetId": "<dataset with write permission>",
@@ -104,9 +104,11 @@ the quick-plot logs, `Target file:` names the CSV under the plot-prep stage's
 output folder (that is the hand-off working); and the run's total duration minus
 quick-plot's ~5 s is what the Fargate stage costs on a pass-through.
 
-A MEF2 recording cannot go through this workflow yet: quick-plot has no NWB
-reader until `nwb_to_signal.py` lands in the fork. Use `plot-prep-test.json`
-for MEF2 until then.
+A MEF2 recording goes through this workflow too (verified 21 Oct with
+quick-plot-test `v0.0.6`, which has the NWB reader): point `target-file` at the
+MEF2 package, set `processorParams.processor-plot-prep.CHANNELS` to the one or
+two channels, use `executionTarget: "standard"` for the prep stage, and ask
+quick-plot for `ieeg_processed_timeseries` with the same channel name(s).
 
 ## Open question for the data-source
 

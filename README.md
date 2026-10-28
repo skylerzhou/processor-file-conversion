@@ -27,10 +27,13 @@ next one an empty folder.
 MEF 2.0 only. The jar reads the header and exits 1 on anything else. MEF3
 (`.mefd` folder trees) is a different format and is not handled.
 
-The code under `processor/converters/mef2/` is moved unchanged from
+The code under `processor/converters/mef2/` is copied unchanged from
 [processor-mef-timeseries](https://github.com/Pennsieve/processor-mef-timeseries),
-tests included. This repo supersedes it: a MEF2 folder in, one NWB out, plus
-the pass-through for everything else.
+tests included. That repo keeps its own job (converting whole recordings for
+other users); this one uses the same three modules to convert the one or two
+channels a plot needs. Because the modules are copied rather than shared, a
+bug fixed in one repo's copy is not fixed in the other's: apply such a fix in
+both places.
 
 ### Adding a converter
 
@@ -107,12 +110,16 @@ The image runs either way; `entrypoint.sh` picks the mode from
 package will pass through (a copy, a few seconds), `standard` (Fargate) when a
 converter will run (a big MEF2 recording needs more than Lambda's 15 minutes).
 
-## Build arguments
+## The jar
 
-| Argument | Default | Description |
-|---|---|---|
-| `MEF2STREAMER_REPO` | `skylerzhou/mef2streamer-fork` | GitHub `<owner>/<name>` to build the jar from. The default is the fork while this processor is under test (app-deploy-service passes no build args, so the default is what the platform builds). Switch it to `Pennsieve/mef2streamer` when integrating. |
-| `MEF2STREAMER_REF` | `main` | Branch, tag or SHA in that repo. Pin it before a release: `MEF2STREAMER_REF=<sha> docker-compose build`. |
+`mefstreamer.jar` is built at image build time from
+[Pennsieve/mef2streamer](https://github.com/Pennsieve/mef2streamer) at the
+commit named by `MEF2STREAMER_REF` in the `Dockerfile` (`0e73047`, main as of
+Oct 2026). It is pinned so a change upstream cannot alter this image
+unnoticed; to pick up a newer streamer, move the pin and tag a release.
+app-deploy-service passes no build args, so the pin in the Dockerfile is what
+the platform builds; locally `MEF2STREAMER_REF=<sha> docker-compose build`
+overrides it for one build.
 
 ## Workflow definition
 

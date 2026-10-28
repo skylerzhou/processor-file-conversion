@@ -20,7 +20,7 @@
       "id": "quick-plot-processor",
       "type": "processor",
       "sourceUrl": "https://github.com/skylerzhou/pennsieve-quick-plot-test",
-      "tag": "v0.0.5",
+      "tag": "v0.0.6",
       "computeType": "lambda",
       "dependsOn": ["processor-plot-prep"]
     },
