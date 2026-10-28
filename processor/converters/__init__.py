@@ -6,6 +6,9 @@ it can. Every module has the same four things:
 
   NAME              identifier, e.g. "mef2_to_nwb"
   OUTPUT_EXTENSION  what it writes, e.g. ".nwb"
+  DESCRIPTION       one paragraph for pennsieve-mcp's plot_file schema: what a
+                    recording of this format looks like in Pennsieve and which
+                    package ids a plot of it needs (goes into converters.json)
   detect(input_dir) -> Path | None
                     the folder (or file) this converter would convert, or
                     None when the input isn't its format. Looks at the files,

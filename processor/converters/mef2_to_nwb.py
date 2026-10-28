@@ -34,6 +34,17 @@ log = logging.getLogger(__name__)
 NAME = "mef2_to_nwb"
 INPUT_EXTENSIONS = (".mef",)
 OUTPUT_EXTENSION = ".nwb"
+# Shown to the model by pennsieve-mcp's plot_file (via schema/converters.json)
+# next to the package_ids argument: what a recording of this format looks like
+# in Pennsieve and which package ids a plot of it needs. Written for the model,
+# not for a log.
+DESCRIPTION = (
+    "A MEF 2.0 recording is a folder of one .mef file per channel. Pass the package id of "
+    "each channel file the plot needs (one for a single channel, two for a montage), or the "
+    "folder's id together with the channel names in template_args.channel / channel2 and "
+    "plot_file picks the files. A folder without channel names is refused, since that would "
+    "convert every channel."
+)
 # A MEF 2.x file opens with a 1024-byte header; the jar reads it with
 # readFully() and dies with a bare EOFException on anything shorter.
 MEF2_HEADER_BYTES = 1024

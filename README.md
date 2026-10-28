@@ -44,6 +44,9 @@ One module in `processor/converters/` with four things, plus one line in the
 NAME = "xyz_to_nwb"
 INPUT_EXTENSIONS = (".xyz",)        # advisory, goes into schema/converters.json
 OUTPUT_EXTENSION = ".nwb"           # something quick-plot already reads
+DESCRIPTION = "..."                 # one paragraph for the model: what a recording of
+                                    # this format looks like in Pennsieve and which
+                                    # package ids a plot of it needs (-> converters.json)
 
 def detect(input_dir: Path) -> Path | None:
     """The folder or file this converter would convert, or None."""

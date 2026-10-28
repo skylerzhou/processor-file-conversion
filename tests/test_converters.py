@@ -53,6 +53,7 @@ def test_schema_lists_the_registry():
     assert [c["name"] for c in schema["converters"]] == known_names()
     assert schema["converters"][0]["input_extensions"] == [".mef"]
     assert schema["converters"][0]["execution_target"] == "standard"
+    assert "one .mef file per channel" in schema["converters"][0]["description"]
     assert schema["pass_through_execution_target"] == "lambda"
 
 

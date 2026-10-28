@@ -6,7 +6,8 @@
         ".mef"
       ],
       "output_extension": ".nwb",
-      "execution_target": "standard"
+      "execution_target": "standard",
+      "description": "A MEF 2.0 recording is a folder of one .mef file per channel. Pass the package id of each channel file the plot needs (one for a single channel, two for a montage), or the folder's id together with the channel names in template_args.channel / channel2 and plot_file picks the files. A folder without channel names is refused, since that would convert every channel."
     }
   ],
   "pass_through_execution_target": "lambda"

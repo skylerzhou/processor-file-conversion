@@ -22,6 +22,7 @@ def build() -> dict:
                 "input_extensions": list(getattr(c, "INPUT_EXTENSIONS", ())),
                 "output_extension": c.OUTPUT_EXTENSION,
                 "execution_target": "standard",
+                "description": getattr(c, "DESCRIPTION", ""),
             }
             for c in CONVERTERS
         ],
