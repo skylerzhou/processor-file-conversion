@@ -25,13 +25,16 @@ parameters:
 # INPUT_DIR and OUTPUT_DIR come from the runner. OUTPUT_FILENAME is accepted as
 # an env var but not declared here: the converted file is named after the
 # channels converted (LA01_LA02.nwb) and nobody needs to set it. Nothing here needs credentials.
+# Port names double as folder names, so workflow-service only accepts
+# ^[A-Za-z0-9][A-Za-z0-9._-]*$ (no spaces). The next stage links to
+# plot-input by this exact name.
 inputs:
-  - name: Data File
+  - name: data-file
     dataType: application/octet-stream
     required: true
     description: Whatever the data-source staged into INPUT_DIR. Either a MEF 2.0 recording (a folder of .mef files, one per channel, flat or one level down) or a file quick-plot reads directly (EDF, CSV, TSV, FCS, ...)
 outputs:
-  - name: Plot Input
+  - name: plot-input
     # Keep this type aligned with the pennsieve-quick-plot input and with the
     # processor-post-timeseries input, which also takes one .nwb file.
     dataType: application/octet-stream
