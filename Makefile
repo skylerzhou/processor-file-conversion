@@ -1,6 +1,6 @@
 .PHONY: help build run clean test schemas
 
-SERVICE_NAME ?= processor-plot-prep
+SERVICE_NAME ?= processor-file-conversion
 SCHEMAS_DIR ?= schema
 
 .DEFAULT: help

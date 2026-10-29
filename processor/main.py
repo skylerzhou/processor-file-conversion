@@ -1,5 +1,5 @@
 """
-processor-plot-prep — the stage in front of pennsieve-quick-plot.
+processor-file-conversion — the stage in front of pennsieve-quick-plot.
 
 Looks at what the data-source staged into INPUT_DIR and makes sure OUTPUT_DIR
 holds something quick-plot can read:
@@ -34,7 +34,7 @@ logging.basicConfig(
     stream=sys.stdout,
     force=True,
 )
-log = logging.getLogger("plot-prep")
+log = logging.getLogger("file-conversion")
 
 
 class PrepError(RuntimeError):
@@ -99,15 +99,15 @@ def main() -> int:
     """Process exit code: 0 when OUTPUT_DIR holds data, 1 otherwise."""
     started = time.time()
     config = Config.from_env()
-    log.info("plot-prep  input=%s  output=%s  channels=%s",
+    log.info("file-conversion  input=%s  output=%s  channels=%s",
              config.input_dir, config.output_dir, ",".join(config.channels) or "(all)")
     try:
         written = run(config)
     except PrepError as err:
-        log.error("plot-prep failed: %s", err)
+        log.error("file-conversion failed: %s", err)
         return 1
     except Exception as err:  # noqa: BLE001 — anything the converter raised
-        log.exception("plot-prep failed: %s", err)
+        log.exception("file-conversion failed: %s", err)
         return 1
     log.info("Done in %.1fs: %s", time.time() - started, ", ".join(p.name for p in written))
     return 0

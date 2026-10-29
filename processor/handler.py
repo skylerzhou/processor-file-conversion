@@ -20,7 +20,7 @@ import os
 import sys
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
-log = logging.getLogger("plot-prep")
+log = logging.getLogger("file-conversion")
 
 _PAYLOAD_TO_ENV = {
     "inputDir": "INPUT_DIR",

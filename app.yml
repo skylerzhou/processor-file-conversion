@@ -1,6 +1,6 @@
 schemaVersion: '1.0'
 application:
-  name: processor-plot-prep
+  name: processor-file-conversion
   description: Prepare a staged file for pennsieve-quick-plot. A MEF 2.0 recording is converted to one NWB file; any other format is copied through unchanged
   type: processor
 runtime:

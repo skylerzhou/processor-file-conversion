@@ -1,10 +1,10 @@
-# processor-plot-prep
+# processor-file-conversion
 
 The stage that runs in front of [pennsieve-quick-plot](https://github.com/Pennsieve/pennsieve-quick-plot)
 in the `plot-templates` workflow. It makes sure quick-plot gets a file it can read:
 
 ```
-target-file ──▶ [ processor-plot-prep ] ──▶ [ quick-plot ] ──▶ figure-asset
+target-file ──▶ [ processor-file-conversion ] ──▶ [ quick-plot ] ──▶ figure-asset
                  MEF2 folder  → one NWB file
                  anything else → copied through unchanged
 ```
@@ -127,17 +127,17 @@ overrides it for one build.
 ## Workflow definition
 
 The node sits between the data-source and quick-plot. Its id is the repo name,
-`processor-plot-prep`, so the workflow JSON, the `processorConfigs` /
+`processor-file-conversion`, so the workflow JSON, the `processorConfigs` /
 `processorParams` keys and the logs all say the same thing:
 
 ```json
-{ "id": "processor-plot-prep", "type": "processor",
-  "sourceUrl": "https://github.com/skylerzhou/processor-plot-prep", "tag": "v0.0.1",
+{ "id": "processor-file-conversion", "type": "processor",
+  "sourceUrl": "https://github.com/skylerzhou/processor-file-conversion", "tag": "v0.0.1",
   "computeType": "lambda", "dependsOn": ["target-file"] },
-{ "id": "quick-plot-processor", "type": "processor", "...": "...", "dependsOn": ["processor-plot-prep"] }
+{ "id": "quick-plot-processor", "type": "processor", "...": "...", "dependsOn": ["processor-file-conversion"] }
 ```
 
 workflow-service only fills defaults for the `processorConfigs` entries a run
 sends, so `plot_file` in pennsieve-mcp must add
-`{ "nodeId": "processor-plot-prep", "version": "...", "executionTarget": "lambda" | "standard" }`
+`{ "nodeId": "processor-file-conversion", "version": "...", "executionTarget": "lambda" | "standard" }`
 to every run.

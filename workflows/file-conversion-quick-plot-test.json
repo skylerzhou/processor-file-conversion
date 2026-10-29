@@ -1,0 +1,38 @@
+{
+  "name": "file-conversion-quick-plot-test",
+  "summary": "Test processor-file-conversion in front of quick-plot: Fargate stage, then Lambda stage, then the viewer asset",
+  "description": "Two-processor test workflow, run by hand with POST /runs. processor-file-conversion (Fargate) passes a CSV through unchanged, pennsieve-quick-plot-test (Lambda; a fork of pennsieve-quick-plot) draws it with the csv_column_distributions template, and the viewer-asset target attaches the PNG. A PNG at the end proves the folder hand-off between stages and standard -> lambda in one run, with no quick-plot code change. Replace organizationId and the quick-plot tag before POSTing to /definitions.",
+  "organizationId": "N:organization:050fae39-4412-43ef-a514-703ed8e299d5",
+  "processors": [
+    {
+      "id": "target-file",
+      "type": "data-source"
+    },
+    {
+      "id": "processor-file-conversion",
+      "type": "processor",
+      "sourceUrl": "https://github.com/skylerzhou/processor-file-conversion",
+      "tag": "v0.0.1",
+      "computeType": "standard",
+      "dependsOn": ["target-file"]
+    },
+    {
+      "id": "quick-plot-processor",
+      "type": "processor",
+      "sourceUrl": "https://github.com/skylerzhou/pennsieve-quick-plot-test",
+      "tag": "v0.0.6",
+      "computeType": "lambda",
+      "dependsOn": ["processor-file-conversion"]
+    },
+    {
+      "id": "figure-asset",
+      "type": "data-target",
+      "targetType": "Pennsieve Package Asset",
+      "dependsOn": ["quick-plot-processor"],
+      "defaultParams": {
+        "ASSET_TYPE": "PNG",
+        "ASSET_NAME": "file-conversion-test"
+      }
+    }
+  ]
+}
